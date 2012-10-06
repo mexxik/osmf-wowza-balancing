@@ -1,0 +1,16 @@
+# Build and Release Folders
+bin-debug/
+bin-release/
+
+# Project property files
+.actionScriptProperties
+.flexProperties
+.settings/
+.project
+
+# IntelliJ Idea
+.idea
+*.iml
+out*
+
+flex-test/
