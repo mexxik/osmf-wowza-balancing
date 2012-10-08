@@ -10,6 +10,9 @@ import flash.events.NetStatusEvent;
 import flash.net.NetConnection;
 import flash.net.NetStreamInfo;
 
+import org.osmf.events.MediaError;
+import org.osmf.events.MediaErrorCodes;
+
 import org.osmf.events.NetConnectionFactoryEvent;
 import org.osmf.media.MediaResourceBase;
 import org.osmf.media.URLResource;
@@ -55,6 +58,19 @@ public class WowzaBalancingNetConnectionFactory extends NetConnectionFactory {
                                                             _resource);
 
                 dispatchEvent(successEvent);
+
+                break;
+
+            case NetConnectionCodes.CONNECT_CLOSED:
+                var errorOnClose:String = _resource.getMetadataValue("error_on_close") as String;
+                if (errorOnClose == "true") {
+                    var mediaError:MediaError = new MediaError(MediaErrorCodes.NETCONNECTION_REJECTED);
+                    var faultEvent:NetConnectionFactoryEvent =
+                            new NetConnectionFactoryEvent(NetConnectionFactoryEvent.CREATION_ERROR, false, false, _netConnection, _resource, mediaError);
+
+                    dispatchEvent(faultEvent);
+                }
+
                 break;
 
             case NetConnectionCodes.CONNECT_REJECTED:
@@ -71,6 +87,7 @@ public class WowzaBalancingNetConnectionFactory extends NetConnectionFactory {
                 else {
 
                 }
+
                 break;
         }
     }
@@ -80,7 +97,10 @@ public class WowzaBalancingNetConnectionFactory extends NetConnectionFactory {
     }
 
 
-
-
+    override public function closeNetConnection(netConnection:NetConnection):void {
+        if (netConnection) {
+            netConnection.close();
+        }
+    }
 }
 }
